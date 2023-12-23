@@ -25,7 +25,7 @@ The simulation is very simple to use. The simulation will start automatically wh
 3. [P5 JS Reference](https://p5js.org/reference/)
 4. [P5 JS Examples](https://p5js.org/examples/)
 5. [P5 JS Web Editor](https://editor.p5js.org/)
-6. [Codsing train - P5 JS Tutorials](https://www.youtube.com/user/shiffman/playlists?view=50&sort=dd&shelf_id=14)
+6. [Coding train - P5 JS Tutorials](https://www.youtube.com/user/shiffman/playlists?view=50&sort=dd&shelf_id=14)
 7. [The Nature of Code](https://natureofcode.com/)
 8. [The Nature of Code - Chapter 8 - Fractals - Quadtree](https://natureofcode.com/book/chapter-8-fractals/#84-quadtree)
 9. [The Coding Train - 98.1: Quadtree Part 1 - Quadtrees and Recursion](https://www.youtube.com/watch?v=OJxEcs0w_kE)
