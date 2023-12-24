@@ -1,6 +1,6 @@
 // Constants
 const POINT_SIZE = 4;
-const MAX_POINTS = 5;
+const MAX_POINTS = 50;
 
 let q_tree = null;
 let points_to_highlight = [];
@@ -44,6 +44,15 @@ function drawRect() {
         rect_points.y1 - rect_points.y);
 }
 
+function resetRect() {
+    rect_points.x = 0;
+    rect_points.y = 0;
+    rect_points.x1 = 0;
+    rect_points.y1 = 0;
+
+    points_to_highlight = [];
+}
+
 let mouse_pressed = false;
 
 function mousePressed() {
@@ -61,16 +70,9 @@ function mousePressed() {
         q_tree.remove(p);
     }
 
-
-    // Highlight points
-    points_to_highlight = [];
-
     if (modes.QUERY) {
         if (mouse_pressed) {
-            rect_points.x = 0;
-            rect_points.y = 0;
-            rect_points.x1 = 0;
-            rect_points.y1 = 0;
+            resetRect();
 
             return;
         }
@@ -154,7 +156,6 @@ function mouseMoved() {
     }
 }
 
-
 // Add key interactions
 function keyPressed() {
     if (key == 'r' || key == 'R') {
@@ -197,14 +198,10 @@ function keyPressed() {
         modes.QUERY = !modes.QUERY;
 
         if (!modes.QUERY) {
-            points_to_highlight = [];
             mouse_pressed = false;
 
             // Reset the rectangle
-            rect_points.x = 0;
-            rect_points.y = 0;
-            rect_points.x1 = 0;
-            rect_points.y1 = 0;
+            resetRect();
         }
 
         // Set all the other modes to false
@@ -232,15 +229,9 @@ function keyPressed() {
         modes.DELETE = false;
 
         // Reset the rectangle
-        rect_points.x = 0;
-        rect_points.y = 0;
-        rect_points.x1 = 0;
-        rect_points.y1 = 0;
-
-        points_to_highlight = [];
+        resetRect();
         mouse_pressed = false;
     }
-
 }
 
 
@@ -257,7 +248,7 @@ function draw() {
     for (let p of points_to_highlight) {
         // Highlight the points
         stroke(255, 0, 255);
-        strokeWeight(4);
+        strokeWeight(6);
         point(p.x, p.y);
 
         if (!display_co_ordinates) {
@@ -283,6 +274,7 @@ function draw() {
         current_mode = 'Delete';
     }
 
+    // Write the current mode
     strokeWeight(1);
     stroke(255);
     fill(255);
