@@ -225,6 +225,22 @@ function keyPressed() {
         }
     }
 
+    // If escape is pressed, set all the modes to false
+    if (keyCode == ESCAPE) {
+        modes.INSERT = false;
+        modes.QUERY = false;
+        modes.DELETE = false;
+
+        // Reset the rectangle
+        rect_points.x = 0;
+        rect_points.y = 0;
+        rect_points.x1 = 0;
+        rect_points.y1 = 0;
+
+        points_to_highlight = [];
+        mouse_pressed = false;
+    }
+
 }
 
 
