@@ -1,7 +1,8 @@
 class Point {
-    constructor(x, y) {
+    constructor(x, y, data = null) {
         this.x = x; // x coordinate
         this.y = y; // y coordinate
+        this.data = data; // additional data, useful for storing values
     }
 
     show() {
@@ -13,7 +14,7 @@ class Point {
 }
 
 class Rectangle {
-    
+
     constructor(x, y, w, h) {
         this.x = x; // corner x
         this.y = y; // corner y
@@ -40,7 +41,7 @@ class Rectangle {
         // Corner mode
         return (
             point.x >= this.x &&
-            point.x <= this.x +  this.w &&
+            point.x <= this.x + this.w &&
             point.y >= this.y &&
             point.y <= this.y + this.h
         );
@@ -55,7 +56,55 @@ class Rectangle {
             range.bottom < this.top
         );
     }
-    
+
+}
+
+class Circle {
+
+    constructor(x, y, r) {
+        this.x = x; // center x
+        this.y = y; // center y
+        this.r = r; // radius
+        this.rSquared = this.r * this.r;
+    }
+
+    contains(point) {
+        // Center mode
+        let d = Math.pow((point.x - this.x), 2) + Math.pow((point.y - this.y), 2);
+        return d <= this.rSquared;
+    }
+
+    contains2(point) {
+        // Corner mode
+        return this.contains(point);
+    }
+
+    intersects(range) {
+        // Corner mode
+        let xDist = Math.abs(range.x - this.x);
+        let yDist = Math.abs(range.y - this.y);
+
+        let r = this.r;
+
+        let w = range.w;
+        let h = range.h;
+
+        let edges = Math.pow((xDist - w), 2) + Math.pow((yDist - h), 2);
+
+        // No intersection
+        if (xDist > (r + w) || yDist > (r + h)) {
+            return false;
+        }
+
+        // Intersection within the circle
+        if (xDist <= w || yDist <= h) {
+            return true;
+        }
+
+        // Intersection on the edge of the circle
+        return edges <= this.rSquared;
+    }
+
 }
 
 class QuadTree {
@@ -103,7 +152,7 @@ class QuadTree {
 
         let sw = new Rectangle(x - w, y + h, w, h);
         this.southwest = new QuadTree(sw, this.capacity);
-        
+
         this.divided = true;
     }
 
@@ -123,76 +172,36 @@ class QuadTree {
             this.subdivide();
         }
 
-        if (this.northeast.insert(point)) {
-            return true;
-        }
-        
-        if (this.northwest.insert(point)) {
-            return true;
-        }
-        
-        if (this.southeast.insert(point)) {
-            return true;
-        }
-        
-        if (this.southwest.insert(point)) {
+        if (this.northeast.insert(point) ||
+            this.northwest.insert(point) ||
+            this.southeast.insert(point) ||
+            this.southwest.insert(point)
+        ) {
             return true;
         }
 
-        // If we get here, something went wrong
+        // If we get here, something went very wrong
         return null;
     }
 
     remove(point) {
-        if (!this.boundary.contains(point)) {
+        // Query a circle with radius 5
+        let found = this.query(new Circle(point.x, point.y, 10));
+
+        if (found.length == 0) {
             return false;
         }
 
-        for (let i = 0; i < this.points.length; i++) {
+        let all_points = this.query(new Circle(point.x, point.y, Infinity));
 
-            // If point distance is less than 5, remove it
-            if (
-                (Math.abs(this.points[i].x - point.x)  <= 2) && 
-                (Math.abs(this.points[i].y - point.y) <= 2)
-            ) {
-                this.points.splice(i, 1);
+        // Intersect all points with found so that we only have the points that are not in found
+        all_points = all_points.filter(x => !found.includes(x));
 
-                // If there are no more points, reset the tree
-                if (this.points.length == 0) {
-                    this.divided = false;
-                }
+        // Regenerate the quadtree
+        this.clear();
 
-                return true;
-            }
-        }
-
-        if (this.divided) {
-            if (this.northeast.remove(point)) {
-
-                // If there are no more points, reset the tree
-                if (this.points.length == 0) {
-                    this.divided = false;
-                }
-
-                return true;
-            }
-            
-            if (this.northwest.remove(point)) {
-                // If there are no more points, reset the tree
-                if (this.points.length == 0) {
-                    this.divided = false;
-                }
-
-                return true;
-            }
-            
-            if (this.southeast.remove(point)) {
-                return true;
-            }
-            
-            if (this.southwest.remove(point)) {
-                return true;
-            }
+        for (let p of all_points) {
+            this.insert(p);
         }
 
         return false;
@@ -226,7 +235,7 @@ class QuadTree {
     clear() {
         this.points = [];
 
-        if(this.divided) {
+        if (this.divided) {
             this.northeast.clear();
             this.northwest.clear();
             this.southeast.clear();

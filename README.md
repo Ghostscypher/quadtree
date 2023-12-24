@@ -13,8 +13,13 @@ To run the simulation, simply clone the repository and open the `index.html` fil
 The simulation is very simple to use. The simulation will start automatically when the webpage is loaded.
 
 1. The simulation can be reset by pressing the `r` key.
-2. To create a bounding box, click and drag the mouse. The bounding box will be created from the point where the mouse was clicked to the point where the mouse was released.
-3. Press the `t` key to toggle displaying the co-ordinates of the bounding box created above.
+2. The simulation has 3 mode `INSERT`, `QUERY` and `DELETE`. You can enter these modes by pressing the `i`, `q` and `d` keys respectively. To exit a mode, press the `ESC` key OR press the same key again.
+3. In `INSERT` mode, click anywhere on the canvas to insert a point.
+4. In `DELETE` mode, click on a point to delete it. This point uses a circular bounding area to delete the point. The radius of the circle has been set to 5 currently.
+5. To create a bounding box enter query mode by pressing `q`, click and drag the mouse. The bounding box will be created from the point where the mouse was clicked to the point where the mouse was released.
+6. Press the `t` key to toggle displaying the co-ordinates of the bounding box created above.
+
+## Demo
 
 <iframe src="https://ghostscypher.github.io/quadtree/src/index.html" title="Quadtree" width="100%" height="500px"></iframe>
 
