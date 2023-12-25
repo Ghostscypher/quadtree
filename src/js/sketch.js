@@ -7,6 +7,7 @@ let points_to_highlight = [];
 let display_co_ordinates = false;
 let modes = {
     INSERT: false,
+
     DELETE: false,
     QUERY: false,
 };
