@@ -19,8 +19,8 @@ let rect_points = {
 };
 
 function setup() {
-    // createCanvas(windowWidth, windowHeight);
-    createCanvas(400, 400);
+    createCanvas(windowWidth, windowHeight);
+    // createCanvas(400, 400);
 
     q_tree = new QuadTree(new Rectangle(0, 0, width, height), POINT_SIZE);
 
