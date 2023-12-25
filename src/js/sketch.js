@@ -1,6 +1,6 @@
 // Constants
 const POINT_SIZE = 4;
-const MAX_POINTS = 10;
+const MAX_POINTS = 50;
 
 let q_tree = null;
 let points_to_highlight = [];
@@ -87,8 +87,6 @@ function queryRect() {
     );
 
     points_to_highlight = q_tree.query(range);
-
-    console.log(points_to_highlight);
 }
 
 let mouse_pressed = false;

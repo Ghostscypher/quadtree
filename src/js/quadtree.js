@@ -194,8 +194,6 @@ class QuadTree {
     query(range, found = false) {
         if (!found) {
             found = [];
-            console.log("New query");
-            console.log(range);
         }
 
         if (!this.boundary.intersects(range)) {
@@ -203,8 +201,6 @@ class QuadTree {
         }
 
         for (let p of this.points) {
-            console.log(p, range, range.contains(p));
-
             if (range.contains(p)) {
                 found.push(p);
             }
