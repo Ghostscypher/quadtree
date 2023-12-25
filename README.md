@@ -21,7 +21,7 @@ The simulation is very simple to use. The simulation will start automatically wh
 
 ## Demo
 
-<iframe src="https://ghostscypher.github.io/quadtree/src/index.html" title="Quadtree" width="100%" height="500px"></iframe>
+<img src="https://raw.githubusercontent.com/ghostscypher/quadtree/output/demo.gif" alt="Quadtree GIF" />
 
 ## References
 

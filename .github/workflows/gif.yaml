@@ -2,7 +2,7 @@ name: Deploy to GH pages and Generate demo.gif file
 
 on: 
   push: 
-    branches: [ main, test-actions]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
