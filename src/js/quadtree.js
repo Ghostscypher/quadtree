@@ -21,14 +21,13 @@ class Rectangle {
         this.w = w; // width
         this.h = h; // height
 
-        this.left = this.x - this.w;
+        this.left = this.x;
         this.right = this.x + this.w;
-        this.top = this.y - this.h;
+        this.top = this.y;
         this.bottom = this.y + this.h;
     }
 
     contains(point) {
-        // Center mode
         return (
             point.x >= this.left &&
             point.x <= this.right &&
@@ -37,23 +36,13 @@ class Rectangle {
         );
     }
 
-    contains2(point) {
-        // Corner mode
-        return (
-            point.x >= this.x &&
-            point.x <= this.x + this.w &&
-            point.y >= this.y &&
-            point.y <= this.y + this.h
-        );
-    }
-
     intersects(range) {
-        // Corner mode
+        // Center mode, x and y are the center of the rectangle
         return !(
-            range.left > this.right ||
-            range.right < this.left ||
-            range.top > this.bottom ||
-            range.bottom < this.top
+            range.x - range.w > this.x + this.w ||
+            range.x + range.w < this.x - this.w ||
+            range.y - range.h > this.y + this.h ||
+            range.y + range.h < this.y - this.h
         );
     }
 
@@ -72,11 +61,6 @@ class Circle {
         // Center mode
         let d = Math.pow((point.x - this.x), 2) + Math.pow((point.y - this.y), 2);
         return d <= this.rSquared;
-    }
-
-    contains2(point) {
-        // Corner mode
-        return this.contains(point);
     }
 
     intersects(range) {
@@ -121,7 +105,7 @@ class QuadTree {
         strokeWeight(1);
         noFill();
         rectMode(CORNER);
-        rect(this.boundary.x, this.boundary.y, this.boundary.w * 2, this.boundary.h * 2);
+        rect(this.boundary.x, this.boundary.y, this.boundary.w, this.boundary.h);
 
         if (this.divided) {
             this.northeast.show();
@@ -141,16 +125,16 @@ class QuadTree {
         let w = this.boundary.w / 2;
         let h = this.boundary.h / 2;
 
-        let ne = new Rectangle(x + w, y - h, w, h);
+        let ne = new Rectangle(x + w, y, w, h);
         this.northeast = new QuadTree(ne, this.capacity);
 
-        let nw = new Rectangle(x - w, y - h, w, h);
+        let nw = new Rectangle(x, y, w, h);
         this.northwest = new QuadTree(nw, this.capacity);
 
         let se = new Rectangle(x + w, y + h, w, h);
         this.southeast = new QuadTree(se, this.capacity);
 
-        let sw = new Rectangle(x - w, y + h, w, h);
+        let sw = new Rectangle(x, y + h, w, h);
         this.southwest = new QuadTree(sw, this.capacity);
 
         this.divided = true;
@@ -210,6 +194,8 @@ class QuadTree {
     query(range, found = false) {
         if (!found) {
             found = [];
+            console.log("New query");
+            console.log(range);
         }
 
         if (!this.boundary.intersects(range)) {
@@ -217,7 +203,9 @@ class QuadTree {
         }
 
         for (let p of this.points) {
-            if (range.contains2(p)) {
+            console.log(p, range, range.contains(p));
+
+            if (range.contains(p)) {
                 found.push(p);
             }
         }

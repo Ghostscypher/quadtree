@@ -1,6 +1,6 @@
 // Constants
 const POINT_SIZE = 4;
-const MAX_POINTS = 50;
+const MAX_POINTS = 10;
 
 let q_tree = null;
 let points_to_highlight = [];
@@ -19,18 +19,32 @@ let rect_points = {
 };
 
 function setup() {
-    createCanvas(windowWidth, windowHeight);
-    // createCanvas(600, 600);
+    // createCanvas(windowWidth, windowHeight);
+    createCanvas(400, 400);
 
     q_tree = new QuadTree(new Rectangle(0, 0, width, height), POINT_SIZE);
 
     for (let i = 0; i < MAX_POINTS; i++) {
         let p = new Point(random(width), random(height));
 
-        p, q_tree.insert(p);
+        q_tree.insert(p);
     }
 }
 
+function correctRect() {
+    // Make sure the points are in the right order, such that x < x1 and y < y1 
+    if (rect_points.x > rect_points.x1) {
+        let tmp = rect_points.x;
+        rect_points.x = rect_points.x1;
+        rect_points.x1 = tmp;
+    }
+
+    if (rect_points.y > rect_points.y1) {
+        let tmp = rect_points.y;
+        rect_points.y = rect_points.y1;
+        rect_points.y1 = tmp;
+    }
+}
 
 function drawRect() {
     stroke(214, 255, 200);
@@ -38,6 +52,10 @@ function drawRect() {
     noFill();
     rectMode(CORNER);
 
+    // Correct the rectangle
+    correctRect();
+
+    // Draw the rectangle
     rect(rect_points.x,
         rect_points.y,
         rect_points.x1 - rect_points.x,
@@ -51,6 +69,26 @@ function resetRect() {
     rect_points.y1 = 0;
 
     points_to_highlight = [];
+}
+
+function queryRect() {
+    // Make sure the points are in the right order, such that x < x1 and y < y1
+    correctRect();
+
+    // Set x and y to be center of the rectangle
+    let w = rect_points.x1 - rect_points.x;
+    let h = rect_points.y1 - rect_points.y;
+
+    let range = new Rectangle(
+        rect_points.x,
+        rect_points.y,
+        w,
+        h
+    );
+
+    points_to_highlight = q_tree.query(range);
+
+    console.log(points_to_highlight);
 }
 
 let mouse_pressed = false;
@@ -72,7 +110,7 @@ function mousePressed() {
 
     if (modes.QUERY) {
         if (mouse_pressed) {
-            resetRect();
+            resetRect()
 
             return;
         }
@@ -84,14 +122,9 @@ function mousePressed() {
 }
 
 function mouseDragged() {
-    points_to_highlight = [];
-
     if (modes.QUERY) {
         if (!mouse_pressed) {
-            rect_points.x = 0;
-            rect_points.y = 0;
-            rect_points.x1 = 0;
-            rect_points.y1 = 0;
+            resetRect();
 
             return;
         }
@@ -104,40 +137,17 @@ function mouseDragged() {
 function mouseReleased() {
 
     if (modes.QUERY) {
-        points_to_highlight = [];
         rect_points.x1 = mouseX;
         rect_points.y1 = mouseY;
 
         mouse_pressed = false;
 
-        // Make sure the points are in the right order
-        if (rect_points.x > rect_points.x1) {
-            let tmp = rect_points.x;
-            rect_points.x = rect_points.x1;
-            rect_points.x1 = tmp;
-        }
-
-        if (rect_points.y > rect_points.y1) {
-            let tmp = rect_points.y;
-            rect_points.y = rect_points.y1;
-            rect_points.y1 = tmp;
-        }
-
         // Query the quadtree
-        let range = new Rectangle(
-            rect_points.x,
-            rect_points.y,
-            rect_points.x1 - rect_points.x,
-            rect_points.y1 - rect_points.y
-        );
-
-        points_to_highlight = q_tree.query(range);
+        queryRect();
     }
 }
 
 function mouseMoved() {
-    points_to_highlight = [];
-
     if (modes.QUERY) {
         if (mouse_pressed) {
             rect_points.x1 = mouseX;
@@ -145,14 +155,7 @@ function mouseMoved() {
         }
 
         // Query the quadtree
-        let range = new Rectangle(
-            rect_points.x,
-            rect_points.y,
-            rect_points.x1 - rect_points.x,
-            rect_points.y1 - rect_points.y
-        );
-
-        points_to_highlight = q_tree.query(range);
+        queryRect();
     }
 }
 
@@ -161,19 +164,15 @@ function keyPressed() {
     if (key == 'r' || key == 'R') {
         // Reset the quadtree
         q_tree.clear();
-        points_to_highlight = [];
 
         // Reset the rectangle
-        rect_points.x = 0;
-        rect_points.y = 0;
-        rect_points.x1 = 0;
-        rect_points.y1 = 0;
+        resetRect();
 
         // Add new points
         for (let i = 0; i < MAX_POINTS; i++) {
             let p = new Point(random(width), random(height));
 
-            p, q_tree.insert(p);
+            q_tree.insert(p);
         }
     }
 
@@ -191,6 +190,9 @@ function keyPressed() {
             modes.QUERY = false;
             modes.DELETE = false;
         }
+
+        // Reset the rectangle
+        resetRect();
     }
 
     if (key == 'q' || key == 'Q') {
@@ -199,16 +201,18 @@ function keyPressed() {
 
         if (!modes.QUERY) {
             mouse_pressed = false;
-
-            // Reset the rectangle
-            resetRect();
         }
 
         // Set all the other modes to false
         if (modes.QUERY) {
             modes.INSERT = false;
             modes.DELETE = false;
+
+            mouse_pressed = false;
         }
+
+        // Reset the rectangle
+        resetRect();
     }
 
     if (key == 'd' || key == 'D') {
@@ -220,6 +224,9 @@ function keyPressed() {
             modes.INSERT = false;
             modes.QUERY = false;
         }
+
+        // Reset the rectangle
+        resetRect();
     }
 
     // If escape is pressed, set all the modes to false
@@ -280,5 +287,29 @@ function draw() {
     fill(255);
     textSize(12);
     text(`Mode: ${current_mode}`, 20, 20);
+
+    // Temporary text
+    // Display the x, y co-ordinates for each of the rectangles in the quadtree
+    // in top left corner
+    // if (display_co_ordinates) {
+    //     strokeWeight(1);
+    //     stroke(255);
+    //     fill(255);
+    //     textSize(12);
+    //     text(`x: ${Math.round(q_tree.boundary.x * 100) / 100}, y: ${Math.round(q_tree.boundary.y * 100) / 100}`, 20, 40);
+
+    //     // If divide is true, then display the x, y co-ordinates for each of the rectangles in the quadtree
+    //     // in top right corner
+    //     if (q_tree.divided) {
+    //         strokeWeight(1);
+    //         stroke(255);
+    //         fill(200);
+    //         textSize(12);
+    //         text(`x: ${Math.round(q_tree.northwest.boundary.x * 100) / 100}, y: ${Math.round(q_tree.northwest.boundary.y * 100) / 100}`, width - 200, 40);
+    //         text(`x: ${Math.round(q_tree.northeast.boundary.x * 100) / 100}, y: ${Math.round(q_tree.northeast.boundary.y * 100) / 100}`, width - 100, 40);
+    //         text(`x: ${Math.round(q_tree.southwest.boundary.x * 100) / 100}, y: ${Math.round(q_tree.southwest.boundary.y * 100) / 100}`, width - 200, 60);
+    //         text(`x: ${Math.round(q_tree.southeast.boundary.x * 100) / 100}, y: ${Math.round(q_tree.southeast.boundary.y * 100) / 100}`, width - 100, 60);
+    //     }
+    // }
 
 }
